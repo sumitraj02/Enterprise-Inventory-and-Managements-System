@@ -73,6 +73,8 @@ One Product → Many Stock Logs (1:N relationship)
 
 Users table is used for access control
 
+
+
 🧠 System Design Highlights
 
 ✅ Normalized Database (3NF)
@@ -85,16 +87,8 @@ Users table is used for access control
 
 ✅ Real-Time Inventory Tracking
 
-📅 Sprint Planning & User Stories
-Planned Sprint	Actual Sprint	US ID	User Story Description	MoSCoW	Dependency	Assignee	Status
-S1	S1	US-001	Project Setup & Database Configuration	MUST HAVE	No Dependency	Intern	Completed
-S1	S1	US-002	Inventory Data Modeling & Schema Design	MUST HAVE	US-001	Intern	Completed
-S2	S2	US-003	Product & Category Management Module	MUST HAVE	US-002	Intern	Completed
-S2	S2	US-004	Stock Management & Update Logic	MUST HAVE	US-003	Intern	Completed
-S3	S3	US-005	Supplier & Purchase Order Module	MUST HAVE	US-004	Intern	Completed
-S3	S3	US-006	Inventory Tracking & Reporting Dashboard	MUST HAVE	US-005	Intern	Completed
-S4	S4	US-007	Role-Based Access & Security Implementation	MUST HAVE	US-006	Intern	Completed
-S4	S4	US-008	System Testing & Deployment	MUST HAVE	US-007	Intern	Completed
+
+
 ⚙️ Tech Stack
 
 Backend: Java / Spring Boot (assumed based on your learning path — update if needed)
@@ -107,7 +101,7 @@ Version Control: Git & GitHub
 
 🛠️ Installation & Setup
 # Clone the repository
-git clone https://github.com/your-username/inventory-management-system.git
+git clone https://github.com/sumitraj02/Enterprise-Inventory-and-Managements-System
 
 # Navigate to project
 cd inventory-management-system
@@ -132,14 +126,18 @@ User account enable/disable system
 
 📱 Mobile app integration
 
-📄 License
 
-This project is licensed under the MIT License.
+
+📄 LICENSE
+
+This project is licensed under the MIT LICENSE.
 
 🙋‍♂️ Author
 
 Sumit Kumar
+
 💻 Aspiring Software Development Engineer
+
 🚀 Passionate about building scalable systems
 
 ⭐ Support
