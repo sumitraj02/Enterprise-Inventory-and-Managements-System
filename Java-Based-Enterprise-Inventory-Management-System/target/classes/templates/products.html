@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+
+    <title>Products</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+
+    <style>
+
+        body{
+        min-height:100vh;
+        background: linear-gradient(135deg,#3a7d6b,#7ec9a3);
+        font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        padding:40px 20px;
+        }
+
+        .page-card{
+        background:white;
+        padding:35px;
+        border-radius:15px;
+        box-shadow:0 10px 30px rgba(0,0,0,0.2);
+        width:100%;
+        max-width:1100px;
+        }
+
+        .graph-card{
+        background:white;
+        padding:30px;
+        border-radius:15px;
+        box-shadow:0 10px 30px rgba(0,0,0,0.2);
+        width:100%;
+        max-width:1100px;
+        margin-top:30px;
+        }
+
+        .title{
+        text-align:center;
+        font-weight:bold;
+        margin-bottom:25px;
+        }
+
+        .table thead{
+        background:#3a7d6b;
+        color:white;
+        }
+
+        .btn-action{
+        border-radius:25px;
+        padding:8px 15px;
+        }
+
+        .stock-btn{
+        border-radius:20px;
+        }
+
+        .chart-container{
+        width:350px;
+        height:350px;
+        margin:auto;
+        }
+
+        #inventoryChart{
+        max-height:400px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="page-card">
+
+    <h3 class="title">
+        <i class="bi bi-box-seam"></i> Product Inventory
+    </h3>
+
+    <div sec:authorize="hasRole('ADMIN')" class="mb-3 text-center">
+
+        <a th:href="@{/products/add}" class="btn btn-success btn-action me-2">
+            <i class="bi bi-plus-circle"></i> Add Product
+        </a>
+
+        <a th:href="@{/reports/export}" class="btn btn-info btn-action">
+            <i class="bi bi-download"></i> Download CSV
+        </a>
+
+    </div>
+
+    <input type="text"
+           id="productSearch"
+           class="form-control mb-3"
+           placeholder="Search product by name or category...">
+
+    <table class="table table-hover table-bordered text-center">
+
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th sec:authorize="hasRole('ADMIN')">Stock Update</th>
+        </tr>
+        </thead>
+
+        <tbody>
+
+        <tr th:each="p : ${products}">
+            <td th:text="${p.name}"></td>
+            <td th:text="${p.category}"></td>
+            <td th:text="${p.quantity}"></td>
+            <td>₹ <span th:text="${#numbers.formatDecimal(p.price,1,2)}"></span></td>
+
+            <td sec:authorize="hasRole('ADMIN')">
+
+                <a th:href="@{/products/update/{id}(id=${p.id},quantity=1,type='ADD')}"
+                   class="btn btn-sm btn-primary stock-btn">+1</a>
+
+                <a th:href="@{/products/update/{id}(id=${p.id},quantity=1,type='REMOVE')}"
+                   class="btn btn-sm btn-danger stock-btn">-1</a>
+
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+
+    <div class="text-center mt-3">
+        <a th:href="@{/dashboard}" class="btn btn-secondary btn-action">
+            Back to Dashboard
+        </a>
+    </div>
+
+</div>
+
+
+<div class="graph-card">
+
+    <h4 class="text-center mb-3">
+        <i class="bi bi-bar-chart"></i> Inventory Stock Graph
+    </h4>
+
+    <canvas id="inventoryChart"></canvas>
+
+</div>
+
+
+<div class="graph-card">
+
+    <h4 class="text-center mb-3">
+        <i class="bi bi-pie-chart"></i> Category Distribution
+    </h4>
+
+    <div class="chart-container">
+        <canvas id="categoryChart"></canvas>
+    </div>
+
+</div>
+
+
+
+<script>
+
+    document.getElementById("productSearch").addEventListener("keyup", function(){
+
+    let input = this.value.toLowerCase();
+    let rows = document.querySelectorAll("table tbody tr");
+
+    rows.forEach(row => {
+
+    let name = row.children[0].textContent.toLowerCase();
+    let category = row.children[1].textContent.toLowerCase();
+
+    row.style.display =
+    (name.includes(input) || category.includes(input)) ? "" : "none";
+
+    });
+
+    });
+
+</script>
+
+
+
+<script th:inline="javascript">
+
+    let productNames = [[${products.![name]}]];
+    let productQty = [[${products.![quantity]}]];
+    let categories = [[${products.![category]}]];
+
+
+
+    /* BAR CHART */
+
+    new Chart(document.getElementById('inventoryChart'), {
+
+    type:'bar',
+
+    data:{
+    labels:productNames,
+    datasets:[{
+    label:'Product Quantity',
+    data:productQty,
+    backgroundColor:'#3a7d6b'
+    }]
+    },
+
+    options:{
+    responsive:true,
+    scales:{
+    y:{beginAtZero:true}
+    }
+    }
+
+    });
+
+
+
+    /* CATEGORY PIE CHART */
+
+    let categoryCount = {};
+
+    categories.forEach(c=>{
+    categoryCount[c]=(categoryCount[c]||0)+1;
+    });
+
+    let labels = Object.keys(categoryCount);
+    let values = Object.values(categoryCount);
+
+
+    new Chart(document.getElementById('categoryChart'),{
+
+    type:'pie',
+
+    data:{
+    labels:labels,
+    datasets:[{
+    data:values,
+    backgroundColor:[
+    "#3a7d6b",
+    "#ffc107",
+    "#17a2b8",
+    "#dc3545",
+    "#6f42c1"
+    ]
+    }]
+    },
+
+    plugins:[ChartDataLabels],
+
+    options:{
+
+    plugins:{
+
+    legend:{position:'bottom'},
+
+    datalabels:{
+    color:'#fff',
+    font:{weight:'bold'},
+    formatter:(value,ctx)=>{
+
+    let sum = ctx.chart.data.datasets[0].data
+    .reduce((a,b)=>a+b,0);
+
+    return ((value*100)/sum).toFixed(1)+"%";
+
+    }
+    }
+
+    }
+
+    }
+
+    });
+
+</script>
+
+</body>
+</html>
